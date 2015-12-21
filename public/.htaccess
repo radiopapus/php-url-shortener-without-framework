@@ -1,0 +1,2 @@
+RewriteEngine on    
+RewriteRule ^([a-z]+)$ redirect.php?hash=$1 [L,QSA]
