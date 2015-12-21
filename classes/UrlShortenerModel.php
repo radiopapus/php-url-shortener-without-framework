@@ -52,9 +52,9 @@ class UrlShortenerModel {
             return $id;
         }
         
-        $sql = sprintf("INSERT INTO %s (%s) VALUES (:%s)", self::TABLE, 'srcurl', 'srcurl');
+        $sql = sprintf("INSERT INTO %s (%s) VALUES (:srcurl)", self::TABLE, 'srcurl');
         $stm = $this->pdo->prepare($sql);
-        $stm->execute(array('srcurl' => $srcUrl));
+        $stm->bindParam(':srcurl', $srcUrl);
         return $this->pdo->lastInsertId();
     }
 
@@ -74,9 +74,9 @@ class UrlShortenerModel {
     }
 
     public function hasRow($srcUrl) {
-        $sql = sprintf("SELECT %s FROM %s WHERE srcurl = :srcurl", 'id', self::TABLE);
+        $sql = sprintf("SELECT id, srcurl FROM %s WHERE srcurl = :srcurl", self::TABLE);
         $stm = $this->pdo->prepare($sql);
-        $stm->execute(array('srcurl' => $srcUrl));
+        $stm->bindParam(':srcurl', $srcUrl);
         $result = $stm->fetch(\PDO::FETCH_ASSOC);
 
         if (isset($result['id']) AND !empty($result['id'])) {
