@@ -30,7 +30,9 @@ We will download and install vagrant image and then go to the virtual machine an
   * GRANT ALL PRIVILEGES ON *.* TO root@localhost IDENTIFIED BY 'toor' WITH GRANT OPTION;
   * FLUSH PRIVILEGES;
   * quit
-14. mysql -u root -ptoor urlshortener < /var/www/urlshortener.sql
+14. mysql -u root -ptoor urlshortener < /var/www/default/urlshortener.sql
 15. exit
-16. Go to browser and type http://php7dev/.
+16. exit
+16. Add this to your hosts file (/etc/hosts): 192.168.7.7 php7dev 
+16. Go to a browser and type http://php7dev/
 17. Test service
