@@ -2,10 +2,10 @@
 php-url-shortener-without-framework
 
 ## Requirements ##
-1. OS Ubuntu/Debian (last stable version)
+1. OS Ubuntu/Debian (last stable version, recommend LTS)
 2. virtualbox (https://www.virtualbox.org/wiki/Linux_Downloads)
 3. vagrant (https://www.vagrantup.com/downloads.html)
-4. base knowledge of virtualbox, vagrant, linux console, git
+4. base knowledge of linux console, git
 
 ## Installation ##
 We will download and install vagrant image and then go to the virtual machine and git clone test task repository.
@@ -19,7 +19,7 @@ We will download and install vagrant image and then go to the virtual machine an
 7. git clone https://github.com/ViktorZharina/php-url-shortener-without-framework.git /var/www/default/
 8. sudo nano /etc/apache2/sites-enabled/000-default.conf
  * change string "DocumentRoot /var/www/default" to "DocumentRoot /var/www/default/public"
- * change string "<Directory /var/www/default/>" to "<Directory /var/www/default/public/>"
+ * change string "<Directory /var/www/>" to "<Directory /var/www/default/public/>"
  * change string "AllowOverride None" to "AllowOverride all"
 9. sudo a2enmod rewrite
 10. sudo service nginx stop 
@@ -32,7 +32,6 @@ We will download and install vagrant image and then go to the virtual machine an
   * quit
 14. mysql -u root -ptoor urlshortener < /var/www/default/urlshortener.sql
 15. exit
-16. exit
 16. Add this to your hosts file (/etc/hosts): 192.168.7.7 php7dev 
-16. Go to a browser and type http://php7dev/
-17. Test service
+17. Go to a browser and type http://php7dev/
+18. Test service
