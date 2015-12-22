@@ -8,7 +8,8 @@
 //   PRIMARY KEY (`id`)
 // ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1;
 
-namespace ViktorZharina\UrlShortener;
+// ALTER SCHEMA `url_shortener`  DEFAULT CHARACTER SET utf8  DEFAULT COLLATE utf8_unicode_ci ;
+
 class UrlShortenerModel {
     private $pdo;
     private $config = array();
@@ -23,7 +24,8 @@ class UrlShortenerModel {
         if (empty($opt)) {
             $opt = array(
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
             );
         }
 
@@ -44,8 +46,7 @@ class UrlShortenerModel {
         return $this->pdo->lastInsertId();
     }
 
-    public function getSourceUrlById($id, array $columns) {
-        $cols = implode(',', $columns);
+    public function getSourceUrlById($id) {
         $sql = sprintf("SELECT srcurl FROM %s WHERE id = :id", self::TABLE);
         $stm = $this->pdo->prepare($sql);
         $stm->bindParam(':id', $id);
@@ -66,11 +67,7 @@ class UrlShortenerModel {
         $stm->bindParam(':srcurl', $srcUrl);
         $stm->execute();
         $result = $stm->fetch(\PDO::FETCH_ASSOC);
-        if (isset($result['id']) AND !empty($result['id'])) {
-            return $result['id'];
-        }
-
-        return 0;
+        return (isset($result['id']) AND !empty($result['id'])) ? $result['id'] : null;
     }
 
     public function getHashById($id) {
@@ -88,9 +85,11 @@ class UrlShortenerModel {
         $possibleChars = $this->config['possibleChars'];
         $strl = strlen($hash);
         $n = '';
+
         for ($pos = 0; $pos < $strl; $pos++) {
             $n .= strpos($possibleChars, $hash[$pos]);
         }
+
         return (int) $n;
     }
 }
