@@ -1,5 +1,4 @@
 <?php
-namespace ViktorZharina\UrlShortener;
 require_once('../config/config.php');
 require_once('../classes/UrlShortenerModel.php');
 
