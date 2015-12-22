@@ -11,7 +11,7 @@ php-url-shortener-without-framework
 We will download and install vagrant image and then go to the virtual machine and git clone test task repository.
 
 1. Run Linux console
-2. type cd /var/www/
+2. Type cd /var/www/
 3. Follow "Installation" steps from https://github.com/rlerdorf/php7dev. vagrant ssh - must be last command. See next step.
 4. makephp 7
 5. sudo rm -rf /var/www/default
@@ -32,5 +32,5 @@ We will download and install vagrant image and then go to the virtual machine an
   * quit
 14. mysql -u root -ptoor urlshortener < /var/www/urlshortener.sql
 15. exit
-16. go to browser and type http://php7dev/.
+16. Go to browser and type http://php7dev/.
 17. Test service
