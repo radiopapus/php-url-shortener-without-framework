@@ -23,11 +23,20 @@ function getXmlHttp() {
 function doShort() {
     var req = getXmlHttp();
     var resultElem = document.getElementById('result');
+    var result = {};
     req.onreadystatechange = function () {
         if (parseInt(req.readyState, 10) === AJAX_COMPLETE) {
-            resultElem.innerHTML = req.responseText;
             if (req.status !== STATUS_CODE_OK) {
                 alert('Connection Error!');
+                return false;
+            }
+            result = eval('(' + req.responseText + ')');
+            if (result.success) {
+                resultElem.innerHTML = '<a href="' + result.shortUrl + '" target="_blank">' +
+                    result.shortUrl + '</a>';
+            } else {
+                alert(result.errMsg);
+                return false;
             }
         }
 
@@ -37,6 +46,6 @@ function doShort() {
     req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
     req.send(params);
 
-    resultElem.innerHTML = 'Ожидаю ответа сервера...';
+    resultElem.innerHTML = 'Waiting answer ...';
     return false;
 }
