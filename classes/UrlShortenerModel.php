@@ -16,24 +16,9 @@ class UrlShortenerModel {
 
     public function __construct($config, $opt = array()) {
         $this->config = $config;
-        $dsn = '';
-        if (!isset($config['dsn']) OR empty($config['dsn'])) {
-            $dsn = 'mysql:host=localhost;dbname=url_shortener';
-        } else {
-            $dsn = $config['dsn'];
-        }
-
-        if (!isset($config['db_user']) OR empty($config['db_user'])) {
-            $user = 'root';
-        } else {
-            $user = $config['db_user'];
-        }
-
-        if (!isset($config['db_pass']) OR empty($config['db_pass'])) {
-            $pass = 'toor';
-        } else {
-            $pass = $config['db_pass'];
-        }
+        $dsn = $config['dsn'];
+        $user = $config['db_user'];
+        $pass = $config['db_pass'];
 
         if (empty($opt)) {
             $opt = array(
@@ -55,14 +40,16 @@ class UrlShortenerModel {
         $sql = sprintf("INSERT INTO %s (%s) VALUES (:srcurl)", self::TABLE, 'srcurl');
         $stm = $this->pdo->prepare($sql);
         $stm->bindParam(':srcurl', $srcUrl);
+        $stm->execute();
         return $this->pdo->lastInsertId();
     }
 
     public function getSourceUrlById($id, array $columns) {
         $cols = implode(',', $columns);
-        $sql = sprintf("SELECT %s FROM %s WHERE id = :id", $cols, self::TABLE);
+        $sql = sprintf("SELECT srcurl FROM %s WHERE id = :id", self::TABLE);
         $stm = $this->pdo->prepare($sql);
-        $stm->execute(array('id' => $id));
+        $stm->bindParam(':id', $id);
+        $stm->execute();
         $result = $stm->fetch(\PDO::FETCH_ASSOC);
         return (isset($result['srcurl']) AND !empty($result['srcurl'])) ? $result['srcurl'] : null;
     }
@@ -74,11 +61,11 @@ class UrlShortenerModel {
     }
 
     public function hasRow($srcUrl) {
-        $sql = sprintf("SELECT id, srcurl FROM %s WHERE srcurl = :srcurl", self::TABLE);
+        $sql = sprintf("SELECT id FROM %s WHERE srcurl = :srcurl", self::TABLE);
         $stm = $this->pdo->prepare($sql);
         $stm->bindParam(':srcurl', $srcUrl);
+        $stm->execute();
         $result = $stm->fetch(\PDO::FETCH_ASSOC);
-
         if (isset($result['id']) AND !empty($result['id'])) {
             return $result['id'];
         }
