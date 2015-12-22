@@ -1,14 +1,12 @@
 <?php 
-// CREATE DATABASE url_shortener;
-// USE url_shortener;
+// CREATE DATABASE `urlshortener` CHARACTER SET utf8 COLLATE utf8_general_ci;
+// USE urlshortener;
 // DROP TABLE IF EXISTS `url`;
 // CREATE TABLE IF NOT EXISTS `url` (
 //   `id` bigint(20) NOT NULL AUTO_INCREMENT,
 //   `srcurl` text CHARACTER SET utf8 NOT NULL,
 //   PRIMARY KEY (`id`)
 // ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1;
-
-// ALTER SCHEMA `url_shortener`  DEFAULT CHARACTER SET utf8  DEFAULT COLLATE utf8_unicode_ci ;
 
 class UrlShortenerModel {
     private $pdo;
