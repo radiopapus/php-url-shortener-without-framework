@@ -12,7 +12,7 @@ We will download and install vagrant image and then go to the virtual machine an
 
 1. Run Linux console
 2. type cd /var/www/
-3. Follow "Installation" steps from https://github.com/rlerdorf/php7dev. vagrant ssh - must be your last command. See next step.
+3. Follow "Installation" steps from https://github.com/rlerdorf/php7dev. vagrant ssh - must be last command. See next step.
 4. makephp 7
 5. sudo rm -rf /var/www/default
 6. mkdir -p /var/www/default 
