@@ -1,6 +1,7 @@
 <?php
 require_once('../config/config.php');
 require_once('../classes/UrlShortenerModel.php');
+require_once('../classes/exceptions/UrlShortenerException.php');
 
 if (isset($_GET['hash'])) {
     $pdo = new \PDO($config['dsn'], $config['db_user'], $config['db_pass'], $config['db_opt']);
