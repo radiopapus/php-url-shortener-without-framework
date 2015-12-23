@@ -19,7 +19,7 @@ We will download and install vagrant image and then go to the virtual machine an
 7. git clone https://github.com/ViktorZharina/php-url-shortener-without-framework.git /var/www/default/
 8. sudo nano /etc/apache2/sites-enabled/000-default.conf
  * change "DocumentRoot /var/www/default" to "DocumentRoot /var/www/default/public"
- * change "/<Directory /var/www/>" to "/<Directory /var/www/default/public/>"
+ * change "<Directory /var/www/>" to "/<Directory /var/www/default/public/>"
  * change "AllowOverride None" to "AllowOverride all"
 9. sudo a2enmod rewrite
 10. sudo service nginx stop 
