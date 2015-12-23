@@ -11,10 +11,9 @@ function my_exception_handler($e) {
 
 function exception_error_handler($errno, $errstr, $errfile, $errline ) {
     if (!(error_reporting() & $errno)) {
-        // Этот код ошибки не входит в error_reporting
         return;
     }
-    throw new Exception($errstr, 0, $errno, $errfile, $errline);
+    throw new Exception($errstr, $errno);
 }
 
 set_error_handler("exception_error_handler");
