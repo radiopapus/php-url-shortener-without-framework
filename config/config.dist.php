@@ -1,6 +1,7 @@
 <?php
 
 $config = array();
+$config['env'] = 'prod';
 $config['site'] = 'http://php7dev/';
 $config['possibleChars'] = 'abcdefghijklmnopqrstuvwxyz';
 $config['dsn'] = 'mysql:host=localhost;dbname=urlshortener';
