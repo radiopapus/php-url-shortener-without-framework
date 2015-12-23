@@ -13,10 +13,9 @@ class UrlShortenerModel {
     private $config = array();
     const TABLE = 'url';
 
-    public function __construct($pdo, $config, $opt = array()) {
+    public function __construct($pdo, $config) {
         $this->pdo = $pdo;
         $this->config = $config;
-        $this->pdo = $pdo;
     }
 
     public function add($srcUrl) {
