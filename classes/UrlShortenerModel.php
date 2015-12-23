@@ -13,21 +13,10 @@ class UrlShortenerModel {
     private $config = array();
     const TABLE = 'url';
 
-    public function __construct($config, $opt = array()) {
+    public function __construct($pdo, $config, $opt = array()) {
+        $this->pdo = $pdo;
         $this->config = $config;
-        $dsn = $config['dsn'];
-        $user = $config['db_user'];
-        $pass = $config['db_pass'];
-
-        if (empty($opt)) {
-            $opt = array(
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
-            );
-        }
-
-        $this->pdo = new \PDO($dsn, $user, $pass, $opt);
+        $this->pdo = $pdo;
     }
 
     public function add($srcUrl) {

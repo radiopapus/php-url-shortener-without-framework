@@ -23,7 +23,8 @@ require_once('../classes/Response.php');
 if (isset($_REQUEST['url']) AND !empty($_REQUEST['url'])) {
     $url = trim($_REQUEST['url'], '!"#$%&\'()*+,-./@:;<=>[\\]^_`{|}~');
     $response = new Response();
-    $shortener = new UrlShortenerModel($config);
+    $pdo = new \PDO($config['dsn'], $config['db_user'], $config['db_pass'], $config['db_opt']);
+    $shortener = new UrlShortenerModel($pdo, $config);
     $insertId = $shortener->add($url);
     $shortUrl = $shortener->getShortUrl($insertId);
     $result = array('success' => 1, 'shortUrl' => $shortUrl, 'errMsg' => '');
