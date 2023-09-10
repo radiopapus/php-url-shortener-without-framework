@@ -20,10 +20,19 @@ function getXmlHttp() {
     return xmlhttp;
 }
 
+
 function doShort() {
     var req = getXmlHttp();
     var resultElem = document.getElementById('result');
-    var result = {};
+    var result = {
+        success: false,
+        data: {
+            originalUrl: "",
+            shortUrl: ""
+        },
+        errMsg: "",
+        errId: 0
+    };
 
     req.onreadystatechange = function () {
         if (parseInt(req.readyState, 10) === AJAX_COMPLETE) {
@@ -33,7 +42,7 @@ function doShort() {
             }
 
             if (req.responseText) {
-                result = eval('(' + req.responseText + ')');
+                result = JSON.parse(req.responseText);
             } else {
                 result.success = 0;
                 result.errMsg = 'Internal service error';
@@ -41,17 +50,18 @@ function doShort() {
             }
 
             if (result.success) {
-                resultElem.innerHTML = '<a href="' + result.shortUrl + '" target="_blank">' +
-                    result.shortUrl + '</a>';
+                resultElem.innerHTML = '<a href="' + result.data.originalUrl + '" target="_blank">' +
+                    result.data.shortUrl + '</a>';
             } else {
-                alert(result.errMsg);
+                alert("Message: " + result.errMsg + " ErrId: " + result.errId);
+                resultElem.innerHTML = "";
                 return false;
             }
         }
     }
 
-    var params = 'url=' + document.getElementById('url').value;
-    req.open('POST', 'urlshortener.php', true);
+    var params = 'originalUrl=' + encodeURIComponent(document.getElementById('url').value);
+    req.open('POST', 'api/urlshort', true);
     req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
     req.send(params);
 

@@ -1,0 +1,32 @@
+version: '3'
+volumes:
+  data:
+services:
+  app:
+    build:
+      context: .
+    container_name: 'php-urlshortener'
+    environment:
+        - 'DATABASE_URL=mysql:host=db;dbname=${MYSQL_DB};user;charset=UTF8'
+    image: url-shortener:latest
+    command: dev_server
+    volumes:
+      - './:/app'
+    depends_on:
+      - db
+    env_file: .env
+    ports:
+      - "8000:8080"
+
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASS}
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+    volumes:
+      - data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
