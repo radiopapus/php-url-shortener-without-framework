@@ -1,58 +1,57 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>XIAG test task</title>
-        <link rel='stylesheet' type='text/css' href='css/testtask-styles.css' media='all' />
-        <meta name="robots" content="noindex,nofollow">
-        <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0">
-    </head>
-    <body>
-    <div class="content">
-        <header>URL shortener</header>
-        <form onsubmit="doShort(this); return false;">
-            <table>
-                <tbody><tr>
-                    <th>Long URL</th>
-                    <th>Short URL</th>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="url" name="url" id="url">
-                        <input type="submit" value="Do!">
-                    </td>
-                    <td id="result"></td>
-                </tr>
-            </tbody></table>
-        </form>
-        <footer>
-            <pre>            Using this HTML please implement the following:
+<?php
 
-            1. Site-visitor (V) enters any original URL to the Input field, like
-            http://anydomain/any/path/etc;
-            2. V clicks submit button;
-            3. Page makes AJAX-request;
-            4. Short URL appears in Span element, like http://yourdomain/abCdE (don't use any
-               external APIs as goo.gl etc.);
-            5. V can copy short URL and repeat process with another link
+require_once("../error_handler.php");
 
-            Short URL should redirect to the original link in any browser from any place and keep
-            actuality forever, doesn't matter how many times application has been used after that.
+spl_autoload_register(function ($classname) {
+    include_once __DIR__ . "/../web/" . str_replace("\\", "/", $classname) . '.php';
+});
 
+use classes\DB;
+use classes\helpers\Retry;
+use classes\response\JsonResponse;
+use config\Config;
+use urlshortener\exceptions\InvalidUrlException;
+use urlshortener\UrlRequest;
+use urlshortener\UrlResponse;
+use urlshortener\UrlShortenerService;
 
-            Requirements:
+$config = Config::getInstance();
 
-            1. Use PHP or Node.js;
-            2. Don't use any frameworks.
-                
-            Expected result:
+$pdo = Retry::retry(function () use ($config) {
+    return new \PDO(
+        $config->getEnvByKey('DATABASE_URL'), $config->getEnvByKey('MYSQL_USER'), $config->getEnvByKey('MYSQL_PASS'), [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+        ]
+    );
+});
 
-            1. Source code;
-            2. System requirements and installation instructions on our platform, in English.
-            </pre>
+$requestUri = $_SERVER['REQUEST_URI'];
+$postRequest = $_SERVER['REQUEST_METHOD'] === 'POST' && str_contains($requestUri, "api/urlshort");
 
-        </footer>
-    </div>
-    <script src="js/urlshortener.js"></script>
-    </body>
-</html>
+$db = new DB($pdo);
+
+if ($postRequest) {
+
+    $service = new UrlShortenerService($db, $config);
+    $request = new UrlRequest();
+
+    $request->originalUrl = $_POST["originalUrl"] ?? throw new InvalidUrlException("Empty url");
+    $model = $service->create($request);
+
+    header('Content-Type: application/json');
+    $response = new UrlResponse($model->originalUrl, $model->getAbsoluteShortUrl());
+    echo new JsonResponse(true, $response);
+    exit(0);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $service = new UrlShortenerService($db, $config);
+
+    header('HTTP/1.1 301 Moved Permanently');
+    header(sprintf("Location: %s", $service->getOriginalUrl($requestUri)));
+    exit(0);
+}
+
+die("unknown route");
