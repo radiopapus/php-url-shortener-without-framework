@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Urlshortener test task</title>
+    <link rel='stylesheet' type='text/css' href='css/testtask-styles.css' media='all' />
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0">
+</head>
+<body>
+<div class="content">
+    <header>URL shortener</header>
+    <form name="short-url-form" onsubmit="doShort(this); return false;">
+        <table>
+            <tbody><tr>
+                <th>Long URL</th>
+                <th>Short URL</th>
+            </tr>
+            <tr>
+                <td>
+                    <input type="url" name="url" id="url" aria-label="Url">
+                    <input type="submit" value="Do!">
+                </td>
+                <td id="result"></td>
+            </tr>
+            </tbody></table>
+    </form>
+    <footer>
+            <pre>            Задание: разработка проекта для сжатия урлов
+Требования:
+- Возможность сокращать через веб-форму
+- Возможность сокращать через api (json)
+- использовать базу данных MariaDB
+- нельзя использовать фреймворки
+- нельзя использовать композер
+- делать по принципу ООП/MVC
+
+Для сложности, можно добавить авторизацию/регистрацию с подтверждением по email
+
+
+После выполнения, публикуйте на GitHub в открытый репозиторий и пришлите ссылку в ответном письме.
+            </pre>
+
+    </footer>
+</div>
+<script src="js/urlshortener.js"></script>
+</body>
+</html>

@@ -1,37 +1,38 @@
-# php-url-shortener-without-framework
-php-url-shortener-without-framework
+# Php url shortener without frameworks
 
 ## Requirements ##
-1. OS Ubuntu/Debian (last stable version, recommend LTS)
-2. virtualbox (https://www.virtualbox.org/wiki/Linux_Downloads)
-3. vagrant (https://www.vagrantup.com/downloads.html)
-4. base knowledge of linux console, git
+1. docker (24.0.x or higher)
+2. git (2.34.x or higher)
+3. httpie (2.6.x recommended) or curl to test API.
 
-## Installation ##
-We will download and install vagrant image and then go to the virtual machine and git clone test task repository.
+## Getting started ##
+After clone repository fill .env file (see .env.example for sure).
+Run `docker compose up`
 
-1. Run Linux console
-2. Type cd /var/www/
-3. Follow "Installation" steps from https://github.com/rlerdorf/php7dev (vagrant ssh - must be last command)
-4. makephp 7
-5. sudo rm -rf /var/www/default
-6. mkdir -p /var/www/default 
-7. git clone https://github.com/ViktorZharina/php-url-shortener-without-framework.git /var/www/default/
-8. sudo nano /etc/apache2/sites-enabled/000-default.conf
- * change "DocumentRoot /var/www/default" to "DocumentRoot /var/www/default/public"
- * change "<Directory /var/www/>" to "<Directory /var/www/default/public/>"
- * change "AllowOverride None" to "AllowOverride all"
-9. sudo a2enmod rewrite
-10. sudo service nginx stop 
-11. sudo service php-fpm stop 
-12. sudo service apache2 restart
-13. mysql -u root 
-  * CREATE DATABASE `urlshortener` CHARACTER SET utf8 COLLATE utf8_general_ci;
-  * GRANT ALL PRIVILEGES ON *.* TO root@localhost IDENTIFIED BY 'toor' WITH GRANT OPTION;
-  * FLUSH PRIVILEGES;
-  * quit
-14. mysql -u root -ptoor urlshortener < /var/www/default/urlshortener.sql
-15. exit
-16. Add this to hosts file (/etc/hosts - real test machine, not virtual): 192.168.7.7 php7dev 
-17. Go to http://php7dev/ from a browser
-18. Test service
+Visit [http://localhost:8000/index.html](http://localhost:8000/index.html) via browser.
+or call ```http :8000/index.html``` in terminal.
+
+Test short url creation```http --form :8000/api/urlshort originalUrl=https://yandex.ru```
+
+```json
+{
+    "data": {
+        "originalUrl": "https://yandex.ru",
+        "shortUrl": "http://localhost:8000/6laZJ"
+    },
+    "errId": "",
+    "errMsg": "",
+    "success": 1
+}
+```
+
+Test redirection from short url to original ```http :8000/api/urlshort/{short_url}```
+```
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Content-type: text/html; charset=UTF-8
+Date: Sun, 10 Sep 2023 16:21:20 GMT
+Host: localhost:8000
+Location: https://yandex.ru
+X-Powered-By: PHP/8.2.10
+```
