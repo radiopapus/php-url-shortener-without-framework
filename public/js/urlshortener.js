@@ -36,11 +36,6 @@ function doShort() {
 
     req.onreadystatechange = function () {
         if (parseInt(req.readyState, 10) === AJAX_COMPLETE) {
-            if (req.status !== STATUS_CODE_OK) {
-                alert('Connection Error!');
-                return false;
-            }
-
             if (req.responseText) {
                 result = JSON.parse(req.responseText);
             } else {

@@ -1,27 +1,24 @@
-# php-url-shortener-without-framework
-php-url-shortener-without-framework
+# Php url shortener without frameworks
 
 ## Requirements ##
-1. docker (24.0.x)
-2. git
-3. httpie (recommended) or curl
+1. docker (24.0.x or higher)
+2. git (2.34.x or higher)
+3. httpie (2.6.x recommended) or curl to test API.
 
 ## Getting started ##
 After clone repository fill .env file (see .env.example for sure).
 Run `docker compose up`
 
 Visit [http://localhost:8000/index.html](http://localhost:8000/index.html) via browser.
+or call ```http :8000/index.html``` in terminal.
 
-```http :8000/index.html```
+Test short url creation```http --form :8000/api/urlshort originalUrl=https://yandex.ru```
 
-Test short url
-
-http --form :8000/api/urlshort originalUrl=https://yandex.ru
 ```json
 {
     "data": {
         "originalUrl": "https://yandex.ru",
-        "shortUrl": "http://localhost:8000/6laZJs"
+        "shortUrl": "http://localhost:8000/6laZJ"
     },
     "errId": "",
     "errMsg": "",
@@ -29,9 +26,7 @@ http --form :8000/api/urlshort originalUrl=https://yandex.ru
 }
 ```
 
-Test redirect from short url to original
-
-http :8000/api/urlshort/{short_url}
+Test redirection from short url to original ```http :8000/api/urlshort/{short_url}```
 ```
 HTTP/1.1 301 Moved Permanently
 Connection: close

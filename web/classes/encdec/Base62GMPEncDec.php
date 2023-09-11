@@ -5,7 +5,8 @@ namespace classes\encdec;
 /**
  * Base62 encoder decoder. Fastest and shorter than Base64.
  */
-class Base62GMPEncDec implements UrlEncoderDecoder {
+class Base62GMPEncDec implements UrlEncoderDecoder
+{
 
     public function encode(string $originalValue): string
     {
@@ -17,7 +18,4 @@ class Base62GMPEncDec implements UrlEncoderDecoder {
         $value = gmp_init($encodedValue, 62);
         return gmp_strval($value);
     }
-}
-{
-
 }

@@ -1,11 +1,12 @@
 <?php
 
-require_once ("../error_handler.php");
+require_once("../error_handler.php");
 
 spl_autoload_register(function ($classname) {
-    include_once __DIR__."/../web/" . str_replace("\\", "/", $classname) . '.php';
+    include_once __DIR__ . "/../web/" . str_replace("\\", "/", $classname) . '.php';
 });
 
+use classes\DB;
 use classes\helpers\Retry;
 use classes\response\JsonResponse;
 use config\Config;
@@ -29,24 +30,27 @@ $pdo = Retry::retry(function () use ($config) {
 $requestUri = $_SERVER['REQUEST_URI'];
 $postRequest = $_SERVER['REQUEST_METHOD'] === 'POST' && str_contains($requestUri, "api/urlshort");
 
+$db = new DB($pdo);
+
 if ($postRequest) {
-    $service = new UrlShortenerService($pdo, $config);
+
+    $service = new UrlShortenerService($db, $config);
     $request = new UrlRequest();
 
     $request->originalUrl = $_POST["originalUrl"] ?? throw new InvalidUrlException("Empty url");
     $model = $service->create($request);
 
     header('Content-Type: application/json');
-    $response = new UrlResponse($model->originalUrl, $model->encodedUrl);
+    $response = new UrlResponse($model->originalUrl, $model->getAbsoluteShortUrl());
     echo new JsonResponse(true, $response);
     exit(0);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $service = new UrlShortenerService($pdo, $config);
+    $service = new UrlShortenerService($db, $config);
 
     header('HTTP/1.1 301 Moved Permanently');
-    header(sprintf("Location: %s", $service->getOriginalUrlByEncodedUrl($requestUri)));
+    header(sprintf("Location: %s", $service->getOriginalUrl($requestUri)));
     exit(0);
 }
 

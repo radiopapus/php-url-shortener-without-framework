@@ -3,14 +3,15 @@
 use classes\response\JsonResponse;
 use JetBrains\PhpStorm\NoReturn;
 use urlshortener\exceptions\InvalidUrlException;
+use urlshortener\exceptions\NotFoundException;
 
 #[NoReturn] function my_exception_handler(\Exception $e): void
 {
-    var_dump($e);
     $resp = new JsonResponse(false, []);
 
     [$resp->errId, $resp->errMsg, $code] = match (true) {
         $e instanceof InvalidUrlException => [uniqid(), $e->getMessage(), 400],
+        $e instanceof NotFoundException => [uniqid(), $e->getMessage(), 404],
         $e instanceof \Exception => [uniqid(), "Service Error", 500],
     };
 

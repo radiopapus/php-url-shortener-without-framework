@@ -5,7 +5,8 @@ namespace classes\response;
 /**
  * Json response wrapper. errId contains uniq id which help find error in logs via search.
  */
-final class JsonResponse extends AbstractResponse  {
+final class JsonResponse
+{
     public mixed $data;
     public bool $success;
     public string $errMsg;
@@ -20,7 +21,7 @@ final class JsonResponse extends AbstractResponse  {
     public function __toString()
     {
         return json_encode([
-            "success" => (int) $this->success,
+            "success" => (int)$this->success,
             "data" => $this->data,
             "errMsg" => !$this->success ? ($this->errMsg ?? "") : "",
             "errId" => !$this->success ? ($this->errId ?? uniqid()) : ""

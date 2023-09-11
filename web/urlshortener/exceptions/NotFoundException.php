@@ -2,6 +2,6 @@
 
 namespace urlshortener\exceptions;
 
-class InvalidUrlException extends \Exception
+class NotFoundException extends \Exception
 {
 }

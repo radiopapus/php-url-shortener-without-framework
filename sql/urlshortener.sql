@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE `url` (
+CREATE TABLE `url` (
     `id` SERIAL,
     `originalUrl` text CHARACTER SET utf8 NOT NULL,
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP

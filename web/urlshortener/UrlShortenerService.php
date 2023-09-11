@@ -2,24 +2,24 @@
 
 namespace urlshortener;
 
+use classes\DB;
 use classes\helpers\Retry;
 use config\Config;
 use Exception;
-use PDO;
 use urlshortener\exceptions\InvalidUrlException;
+use urlshortener\exceptions\NotFoundException;
 
 /**
  * Url shortener service.
  */
 class UrlShortenerService
 {
-    private PDO $pdo;
+    private DB $db;
     private Config $config;
-    private string $salt = "s";
 
-    public function __construct(PDO $pdo, Config $config)
+    public function __construct(DB $db, Config $config)
     {
-        $this->pdo = $pdo;
+        $this->db = $db;
         $this->config = $config;
     }
 
@@ -40,14 +40,25 @@ class UrlShortenerService
         fwrite(fopen("php://stdout", "w"), $message . PHP_EOL);
     }
 
+    private function validate(UrlRequest $request)
+    {
+        $this->log("Validation for url $request->originalUrl started.");
+
+        match (true) {
+            empty($request->originalUrl) => throw new InvalidUrlException("Url is empty."),
+            !parse_url($request->originalUrl) => throw new InvalidUrlException("Check url format please."),
+            $this->ifNotAvailable($request->originalUrl) => throw new InvalidUrlException("Url resource does not exist."),
+            default => ""
+        };
+        $this->log("Validation is ok.");
+    }
+
     /**
      * Add url to storage with retries if storage unavailable.
      *
      * Use id as identifier for original url. Encode id via encoder (default Base62 based on gmp stuff).
      * Don"t check existence url by original url to avoid additional query and indexing.
      * Validate format original url, availability and emptiness.
-     *
-     * In addition add salt to encoded string to protect from bruteforce.
      *
      * @param UrlRequest $request
      * @return UrlModel
@@ -56,79 +67,68 @@ class UrlShortenerService
      */
     public function create(UrlRequest $request): UrlModel
     {
-        $this->log("Validation for url $request->originalUrl started");
+        $this->validate($request);
 
-        match (true) {
-            empty($request->originalUrl) => throw new InvalidUrlException("Url is empty"),
-            !parse_url($request->originalUrl) => throw new InvalidUrlException("Check url format please."),
-            $this->ifNotAvailable($request->originalUrl) => throw new InvalidUrlException("Url resource does not exist."),
-            default => ""
-        };
-        $this->log("Validation is ok");
+        $model = new UrlModel($request->originalUrl, $this->config);
 
-        $model = new UrlModel($request->originalUrl);
-
-        $this->log("Write to database");
-        Retry::retry(function () use ($request) {
+        $this->log("Write to database.");
+        $db = $this->db;
+        Retry::retry(function () use ($request, $db) {
             $sql = sprintf(
                 "INSERT INTO %s (%s) VALUES (:originalUrl)",
                 UrlModel::getTableName(), "originalUrl",
             );
 
-            $stm = $this->pdo->prepare($sql);
-            $stm->execute(["originalUrl" => $request->originalUrl]);
+            return $db->insert($sql, ["originalUrl" => $request->originalUrl]);
         });
-        $this->log("Write to database - OK");
+        $this->log("Write to database - OK.");
 
-        $host = $this->config->getEnvByKey("APP_HOST") ?? "http://localhost";
-        $port = $this->config->getEnvByKey("APP_PORT") ?? "8000";
+        $model->id = $this->db->lastInsertId();
 
-        $model->id = $this->pdo->lastInsertId();
-
-        $encoded = $this->config
-            ->getUrlEncoderDecoder()
-            ->encode($model->id);
-
-        $this->log("Encoded value is $encoded, salt is $this->salt");
-
-        $model->encodedUrl = sprintf("%s:%s/%s%s", $host, $port, $encoded, $this->salt); // add salt to avoid bruteforce
         return $model;
     }
 
+    private function getEncodeIdFromPath(string $path): bool|string
+    {
+        $linkArray = explode("/", $path);
+
+        return end($linkArray);
+    }
+
     /**
-     * Returns original url by /path. Substract salt (by default last character)
+     * Decode and returns original url by /path.
+     *
+     * Get encoded url from path (id), decode and fetch from db. /aHxas -> 1000003
      *
      * @throws InvalidUrlException
      * @throws Exception
      */
-    public function getOriginalUrlByEncodedUrl(string $path): string
+    public function getOriginalUrl(string $path): string
     {
-        $this->log("Absolute url is $path");
-        $linkArray = explode("/", $path);
+        $encodedId = $this->getEncodeIdFromPath($path);
 
-        $encodedId = end($linkArray);
-        $this->log("Encoded originalUrl path $encodedId");
+        if (empty($encodedId)) {
+            throw new InvalidUrlException("Incorrect url in path.");
+        }
+        $this->log("EncodedId from path $encodedId.");
 
-        $id = $this->config->getUrlEncoderDecoder()->decode(
-            substr($encodedId, 0, 0 - (strlen($this->salt)))
-        );
+        $id = $this->config->getUrlEncoderDecoder()->decode($encodedId);
 
-        $this->log("Decoded id $id");
+        $this->log("Decoded id $id.");
 
-        $result = Retry::retry(function () use ($id) {
-            $sql = sprintf(
-                "SELECT `originalUrl` FROM %s WHERE `id`=:id LIMIT 1", UrlModel::getTableName()
-            );
-
-            $stm = $this->pdo->prepare($sql);
-            $stm->execute(["id" => $id]);
-
-            return $stm->fetch();
+        $db = $this->db;
+        $originalUrl = Retry::retry(function () use ($id, $db) {
+            $sql = sprintf("SELECT originalUrl FROM %s WHERE id=:id", UrlModel::getTableName());
+            return $db->fetchColumn($sql, ["id" => $id]);
         });
 
-        $this->log("Result form database " . implode(",", $result));
+        if (empty($originalUrl)) {
+            throw new NotFoundException("Url not found.");
+        }
 
-        return $result["originalUrl"]
+        $this->log("OriginalUrl from database $originalUrl.");
+
+        return $originalUrl
             ?? throw new InvalidUrlException("Incorrect url: check your link, probably out of date");
     }
 }
